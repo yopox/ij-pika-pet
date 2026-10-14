@@ -6,6 +6,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.ui.JBUI
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import java.awt.Component
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
@@ -21,8 +23,10 @@ private const val RIGHT_TOOLBAR_GAP = 20
  * It uses [JLayeredPane.PALETTE_LAYER], so it is above the frame content and below the popups.
  */
 @Service(Service.Level.PROJECT)
-internal class PikaPetService(private val project: Project) : Disposable {
+internal class PikaPetService(private val project: Project, private val scope: CoroutineScope) : Disposable {
     private var uninstall: (() -> Unit)? = null
+    private var animation: PikaAnimation = PikaAnimation.BLINK
+    private var animationJob: Job? = null
 
     @RequiresEdt
     fun install() {
@@ -32,6 +36,7 @@ internal class PikaPetService(private val project: Project) : Disposable {
         val statusBar = WindowManager.getInstance().getStatusBar(project)?.component
 
         val sprite = PikaSpriteComponent()
+        animationJob = sprite.playAnimation(scope, PikaAnimation.BLINK)
         layeredPane.add(sprite, JLayeredPane.DRAG_LAYER)
 
         val relayout = { updateBounds(sprite, layeredPane, statusBar) }

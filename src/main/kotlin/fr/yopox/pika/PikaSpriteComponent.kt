@@ -15,7 +15,7 @@ private const val SPRITESHEET_PATH = "/assets/pika.png"
 
 private val LOG = logger<PikaSpriteComponent>()
 
-internal class PikaSpriteComponent(private val frameIndex: Int = 14) : JComponent() {
+internal class PikaSpriteComponent(var frameIndex: Int = 14) : JComponent() {
     private val spritesheet: BufferedImage? = loadSpritesheet()
 
     init {
