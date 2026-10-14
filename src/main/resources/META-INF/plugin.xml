@@ -1,0 +1,20 @@
+<idea-plugin>
+    <id>fr.yopox.pika.ij-pika-pet</id>
+
+    <name>Pika Pet</name>
+
+    <vendor url="https://www.yourcompany.com">YourCompany</vendor>
+
+    <description><![CDATA[
+        Enter short description for your plugin here.<br>
+        <em>most HTML tags may be used</em>
+        ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <resource-bundle>messages.PikaBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="fr.yopox.pika.PikaPetStartupActivity"/>
+    </extensions>
+</idea-plugin>
