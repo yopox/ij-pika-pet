@@ -9,7 +9,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 enum class PikaAnimation {
-    BLINK, CELEBRATE, WAIT, WAVE, SAD, QUESTION,
+    BLINK, CELEBRATE, WAIT, WAVE, SAD, QUESTION, HEARTS_1, HEARTS_2, HEARTS_3, SHOCKED
 }
 
 internal fun PikaSpriteComponent.playAnimation(
@@ -64,4 +64,24 @@ private fun getAnimation(animations: PikaAnimation): Animation = when (animation
         Frame(0, 7, 600.milliseconds, 300.milliseconds),
         Frame(1, 7, 600.milliseconds, 300.milliseconds),
     ))
+    PikaAnimation.HEARTS_1 -> Animation(listOf(
+        Frame(3, 3, 600.milliseconds, 300.milliseconds),
+        Frame(4, 3, 600.milliseconds, 300.milliseconds)
+    ))
+    PikaAnimation.HEARTS_2 -> Animation(listOf(
+        Frame(5, 3, 600.milliseconds),
+        Frame(6, 3, 600.milliseconds),
+        Frame(7, 3, 600.milliseconds),
+    ))
+    PikaAnimation.HEARTS_3 -> Animation(listOf(
+        Frame(0, 4, 600.milliseconds),
+        Frame(1, 4, 600.milliseconds),
+        Frame(2, 4, 600.milliseconds),
+        Frame(3, 4, 600.milliseconds)
+    ))
+    PikaAnimation.SHOCKED -> Animation(listOf(
+        Frame(2, 7, 600.milliseconds),
+        Frame(3, 7, 600.milliseconds)
+    ))
+
 }

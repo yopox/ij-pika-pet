@@ -52,7 +52,7 @@ class PikaPetService(internal val project: Project, private val scope: Coroutine
      * Plays [anim] [loops] times, then goes back to [PikaAnimation.BLINK].
      * A newer animation cancels this one and keeps its own animation.
      */
-    internal fun playOneShot(anim: PikaAnimation, loops: Int) {
+    internal fun playOneShot(anim: PikaAnimation, loops: Int = 1) {
         playAnimation(anim, loops = loops).invokeOnCompletion { cause ->
             if (cause == null) playAnimation(IDLE)
         }
