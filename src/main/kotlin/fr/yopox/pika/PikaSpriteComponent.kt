@@ -30,7 +30,8 @@ internal class PikaSpriteComponent(var frameIndex: Int = 14) : JComponent() {
         val sheet = spritesheet ?: return
         val frameCount = sheet.width / SPRITE_SIZE
         if (frameCount == 0) return
-        val sourceX = (frameIndex % frameCount) * SPRITE_SIZE
+        val sourceX = (frameIndex % 8) * SPRITE_SIZE
+        val sourceY = (frameIndex / 8) * SPRITE_SIZE
 
         val g2 = g.create() as Graphics2D
         try {
@@ -38,7 +39,7 @@ internal class PikaSpriteComponent(var frameIndex: Int = 14) : JComponent() {
             g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED)
             g2.drawImage(sheet,
                 0, 0, SPRITE_SIZE * ZOOM, SPRITE_SIZE * ZOOM,
-                sourceX, 0, sourceX + SPRITE_SIZE, SPRITE_SIZE,
+                sourceX, sourceY, sourceX + SPRITE_SIZE, sourceY + SPRITE_SIZE,
                 null)
         }
         finally {

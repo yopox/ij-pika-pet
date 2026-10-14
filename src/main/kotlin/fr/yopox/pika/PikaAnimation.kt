@@ -1,7 +1,9 @@
 package fr.yopox.pika
 
-import com.intellij.openapi.application.EDT
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -22,8 +24,8 @@ internal fun PikaSpriteComponent.playAnimation(
         var loopCount = 0
         while (true) {
             val frame = animation.frames[index]
-            this@playAnimation.frameIndex = frame.key
-            withContext<Unit>(Dispatchers.EDT) { this@playAnimation.repaint() }
+            this@playAnimation.frameIndex = frame.y * 8 + frame.x
+            this@playAnimation.repaint()
             delay(frame.duration + frame.randomDuration * Math.random())
             index = (index + 1) % animation.frames.size
             if (index == 0) {
@@ -35,31 +37,31 @@ internal fun PikaSpriteComponent.playAnimation(
     }
 }
 
-private data class Frame(val key: Int, val duration: Duration, val randomDuration: Duration = 0.seconds)
+private data class Frame(val x: Int, val y: Int, val duration: Duration, val randomDuration: Duration = 0.seconds)
 private data class Animation(val frames: List<Frame>)
 
 private fun getAnimation(animations: PikaAnimation): Animation = when (animations) {
     PikaAnimation.BLINK -> Animation(listOf(
-        Frame(14, 5.seconds, 10.seconds),
-        Frame(15, 200.milliseconds, 200.milliseconds),
+        Frame(5, 1, 5.seconds, 10.seconds),
+        Frame(6, 1, 300.milliseconds, 200.milliseconds),
     ))
     PikaAnimation.CELEBRATE -> Animation(listOf(
-        Frame(27, 400.milliseconds, 300.milliseconds),
-        Frame(26, 400.milliseconds, 300.milliseconds),
+        Frame(2, 3, 400.milliseconds, 300.milliseconds),
+        Frame(1, 3, 400.milliseconds, 300.milliseconds),
     ))
     PikaAnimation.WAIT -> Animation(listOf(
-        Frame(6, 600.milliseconds, 300.milliseconds),
-        Frame(7, 600.milliseconds, 300.milliseconds),
+        Frame(5, 0, 600.milliseconds, 300.milliseconds),
+        Frame(6, 0, 600.milliseconds, 300.milliseconds),
     ))
     PikaAnimation.WAVE -> Animation(listOf(
-        Frame(20, 600.milliseconds, 300.milliseconds),
-        Frame(21, 600.milliseconds, 300.milliseconds),
+        Frame(4, 2, 600.milliseconds, 300.milliseconds),
+        Frame(3, 2, 600.milliseconds, 300.milliseconds),
     ))
     PikaAnimation.SAD -> Animation(listOf(
-        Frame(46, 2000.milliseconds, 500.milliseconds),
+        Frame(5, 6, 2000.milliseconds, 500.milliseconds),
     ))
     PikaAnimation.QUESTION -> Animation(listOf(
-        Frame(61, 600.milliseconds, 300.milliseconds),
-        Frame(62, 600.milliseconds, 300.milliseconds),
+        Frame(0, 7, 600.milliseconds, 300.milliseconds),
+        Frame(1, 7, 600.milliseconds, 300.milliseconds),
     ))
 }
