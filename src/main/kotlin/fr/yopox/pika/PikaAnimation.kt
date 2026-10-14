@@ -7,33 +7,59 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 enum class PikaAnimation {
-    BLINK
+    BLINK, CELEBRATE, WAIT, WAVE, SAD, QUESTION,
 }
 
-internal fun PikaSpriteComponent.playAnimation(scope: CoroutineScope, anim: PikaAnimation): Job {
-    return getAnimation(anim).play(scope, this)
-}
-
-private data class Frame(val key: Int, val duration: Duration, val randomDuration: Duration = 0.seconds)
-private data class Animation(val frames: List<Frame>, val loop: Boolean)
-
-private fun Animation.play(scope: CoroutineScope, component: PikaSpriteComponent): Job = scope.launch {
-    var index = 0
-    while (true) {
-        val frame = frames[index]
-        component.frameIndex = frame.key
-        withContext(Dispatchers.EDT) { component.repaint() }
-        delay(frame.duration + frame.randomDuration * Math.random())
-        index = (index + 1) % frames.size
-        if (!loop && index == 0) break
+internal fun PikaSpriteComponent.playAnimation(
+    scope: CoroutineScope,
+    anim: PikaAnimation,
+    looped: Boolean = true,
+    loops: Int = -1,
+): Job {
+    val animation = getAnimation(anim)
+    return scope.launch {
+        var index = 0
+        var loopCount = 0
+        while (true) {
+            val frame = animation.frames[index]
+            this@playAnimation.frameIndex = frame.key
+            withContext<Unit>(Dispatchers.EDT) { this@playAnimation.repaint() }
+            delay(frame.duration + frame.randomDuration * Math.random())
+            index = (index + 1) % animation.frames.size
+            if (index == 0) {
+                if (!looped) break
+                loopCount += 1
+                if (loops != -1 && loopCount >= loops) break
+            }
+        }
     }
 }
 
-private val BLINK = Animation(listOf(
-    Frame(14, 5.seconds, 10.seconds),
-    Frame(15, 200.milliseconds, 200.milliseconds)
-), true)
+private data class Frame(val key: Int, val duration: Duration, val randomDuration: Duration = 0.seconds)
+private data class Animation(val frames: List<Frame>)
 
 private fun getAnimation(animations: PikaAnimation): Animation = when (animations) {
-    PikaAnimation.BLINK -> BLINK
+    PikaAnimation.BLINK -> Animation(listOf(
+        Frame(14, 5.seconds, 10.seconds),
+        Frame(15, 200.milliseconds, 200.milliseconds),
+    ))
+    PikaAnimation.CELEBRATE -> Animation(listOf(
+        Frame(27, 400.milliseconds, 300.milliseconds),
+        Frame(26, 400.milliseconds, 300.milliseconds),
+    ))
+    PikaAnimation.WAIT -> Animation(listOf(
+        Frame(6, 600.milliseconds, 300.milliseconds),
+        Frame(7, 600.milliseconds, 300.milliseconds),
+    ))
+    PikaAnimation.WAVE -> Animation(listOf(
+        Frame(20, 600.milliseconds, 300.milliseconds),
+        Frame(21, 600.milliseconds, 300.milliseconds),
+    ))
+    PikaAnimation.SAD -> Animation(listOf(
+        Frame(46, 2000.milliseconds, 500.milliseconds),
+    ))
+    PikaAnimation.QUESTION -> Animation(listOf(
+        Frame(61, 600.milliseconds, 300.milliseconds),
+        Frame(62, 600.milliseconds, 300.milliseconds),
+    ))
 }
