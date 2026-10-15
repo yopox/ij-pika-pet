@@ -32,6 +32,7 @@ class PikaPetService(internal val project: Project, private val scope: Coroutine
     private var animationJob: Job = Job()
 
     private var listener: ComponentListener? = null
+    private var nextAnimation: PikaAnimation = IDLE
 
     init {
         playAnimation(animation)
@@ -44,7 +45,7 @@ class PikaPetService(internal val project: Project, private val scope: Coroutine
         registerAnimationTriggers(this)
 
         val layeredPane = getWindowComponents().first ?: return
-        layeredPane.add(sprite, JLayeredPane.DRAG_LAYER)
+        layeredPane.add(sprite, JLayeredPane.DRAG_LAYER as Integer)
         registerComponentListeners(layeredPane)
     }
 
@@ -53,8 +54,29 @@ class PikaPetService(internal val project: Project, private val scope: Coroutine
      * A newer animation cancels this one and keeps its own animation.
      */
     internal fun playOneShot(anim: PikaAnimation, loops: Int = 1) {
-        playAnimation(anim, loops = loops).invokeOnCompletion { cause ->
-            if (cause == null) playAnimation(IDLE)
+        if (isAnimationPlaying(anim)) {
+            nextAnimation = anim
+        }
+        else playAnimation(anim, loops = loops).invokeOnCompletion { cause ->
+            animation = IDLE
+            if (cause == null) {
+                if (nextAnimation == IDLE) {
+                    playAnimation(nextAnimation)
+                }
+                else {
+                    playOneShot(nextAnimation)
+                }
+                nextAnimation = IDLE
+            }
+        }
+    }
+    
+    internal fun isAnimationPlaying(anim: PikaAnimation?): Boolean {
+        if (anim == null) {
+            return animation != IDLE
+        }
+        else {
+            return animation == anim
         }
     }
 

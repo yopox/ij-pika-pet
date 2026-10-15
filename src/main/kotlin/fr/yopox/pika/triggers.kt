@@ -3,7 +3,12 @@ package fr.yopox.pika
 import com.intellij.analysis.problemsView.Problem
 import com.intellij.analysis.problemsView.ProblemsListener
 import com.intellij.codeInsight.daemon.impl.EditorTrackerListener
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.actions.BackspaceAction
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ex.WindowManagerListener
@@ -17,6 +22,23 @@ fun registerAnimationTriggers(petService: PikaPetService) {
     frameTrigger(project, petService)
     problemsTrigger(project, petService)
     editorTrigger(project, petService)
+    actionTrigger(project, petService)
+}
+
+fun actionTrigger(project: Project, petService: PikaPetService) {
+    project.messageBus.connect(petService).subscribe(AnActionListener.TOPIC, 
+        object: AnActionListener {
+            override fun afterEditorTyping(c: Char, dataContext: DataContext) {
+                petService.playOneShot(PikaAnimation.LOOKING, loops = 2)
+            }
+
+            override fun beforeActionPerformed(action: AnAction, event: AnActionEvent) {
+                if (action is BackspaceAction) {
+                    petService.playOneShot(PikaAnimation.DEPRESSED)
+                }
+            }
+        }
+    )
 }
 
 fun editorTrigger(project: Project, petService: PikaPetService) {
